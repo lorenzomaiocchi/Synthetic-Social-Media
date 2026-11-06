@@ -62,12 +62,7 @@ def compute_opinion(text):
 
     opinion = conPerplexity / (proPerplexity + conPerplexity)
 
-    print(opinion) 
+    return opinion 
 
 
-compute_opinion('Nuclear energy is honestly one of the best tools we have to fight climate change. Reliable, low-carbon electricity without depending on the weather. We should be investing much more in it.')
-
-compute_opinion('People keep pretending nuclear energy is safe, but accidents like Fukushima show that the consequences of failure can be catastrophic. I really don\'t think we should be expanding it.')
-
-
-
+## Change the prompting

@@ -52,3 +52,7 @@ def randomizeFeed(inputPosts):
         posts[i] = random.sample(inputPosts, 2 )
     return posts
 
+
+
+#Create agent ideology update function
+# Create agent follow grid.
