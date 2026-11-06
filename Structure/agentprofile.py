@@ -32,14 +32,14 @@ def create_agents(n_agents):
         mapping_key = int(np.random.choice(list(mapping_dict.keys())))
         
         personality_dict[agent] = {
-            'Opennes': np.random.rand(1,1).round(2).tolist(),
+            'Opennes': np.random.rand(1,1).round(2).flatten(),
             'Ideology':  mapping_key,
             'Positioning': mapping_dict[mapping_key],
             'follow': np.random.choice([a for a in agents if a != agent], 3, replace= False).tolist(),
             'Alpha': 0.10
         }
 
-    print(personality_dict)
+    print(personality_dict, sep='\n')
     
     return personality_dict
 
@@ -54,5 +54,5 @@ def randomizeFeed(inputPosts):
 
 
 
-#Create agent ideology update function
-# Create agent follow grid.
+agents = create_agents(4)
+

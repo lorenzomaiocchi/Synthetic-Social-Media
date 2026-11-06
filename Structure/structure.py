@@ -171,7 +171,74 @@ def update_followers(agents, adjacency):
 
 
 
+
+def FollowIdeology(agents):
+
+    followIdeology = {}
+
+    for a in agents.keys():
+        followers = agents[a]['follow']
+
+        if len(followers) > 0: 
+            ideology = [agents[Id]['Ideology'] for Id in followers]
+
+            followIdeology[a] = np.mean(ideology)
+
+        else:
+            followIdeology[a] = agents[a]['Ideology']
+
+    return followIdeology
+
+
+def MeanUpdating(agents):
+
+    idarray = FollowIdeology(agents)
+    new_ideologies = {}
+
+    for a in agents.keys():
+
+        u = float(agents[a]['Opennes'][0])
+        Id_agent = agents[a]['Ideology']
         
+        fl_mean = idarray[a]
+
+        new = ((1 - u) * Id_agent) + (u * fl_mean)
+
+        new_ideologies[a] = np.clip(new, 1,10)
+
+    for a, new in new_ideologies.items():
+        agents[a]['Ideology'] = float(new)
+
+    return agents
+
+def update_positioning(agents):
+
+    for a in agents.keys():
+
+        ideology = agents[a]['Ideology']
+
+        if ideology < 2.5:
+            positioning = 'Strong opposition'
+
+        elif ideology < 4.5:
+            positioning = 'Mild opposition'
+
+        elif ideology < 6.5:
+            positioning = 'Neutral/Mixed'
+
+        elif ideology < 8.5:
+            positioning = 'Mild support'
+
+        else:
+            positioning = 'Strong support'
+
+        agents[a]['Positioning'] = positioning
+
+    return agents
+
+
+
+
 
 
 #MAIN LOOP #######
@@ -189,7 +256,7 @@ opinion_history = {
 }
 
 
-for t in range(1):
+for t in range(4):
 
     history[t]  = {}
 
@@ -204,12 +271,12 @@ for t in range(1):
     Difference_matrix = opinion_matrix(Opinion, t)
     AdjMatrix = Adjacency_Matrix(Difference_matrix)
     agents = update_followers(agents, AdjMatrix)
+    NewIdeology = FollowIdeology(agents)
+    agents = MeanUpdating(agents)
+    agents = update_positioning(agents)
 
 
 
     print(f'------ turn {t} ---------')
     #print(history[t])
-    print(Opinion)
-    print(Difference_matrix)
-    print(AdjMatrix)
     print(agents)
