@@ -34,14 +34,25 @@ def initial_response(agents, starting_feed):
     for a, f in starting_feed.items():
 
 
-        inputdata = f'''You are: {a} 
+        inputdata = f'''
+        You are a user participating in a social media discussion about nuclear energy.
             
-            You read the following tweets: {f}. 
+        Your position on the topic is {agents[a]['Positioning']}
             
-            Your position on the topic is {agents[a]['Positioning']}
+        You read the following tweets: 
+            {f}. 
+            
 
-            Generate a short response to the tweet in line with your position on the topic
-    '''
+        Write ONE new social media post about nuclear energy.
+            
+                    Rules:
+                    - Express an opinion consistent with your assigned position.
+                    - You may agree or disagree with the posts you read.
+                    - Write no more than 40 words.
+                    - Write only the post itself.
+                    - Do not explain your instructions or describe what you are doing.
+                    - Do not generate fictional conversations or quote imaginary replies.
+                    - Do not include labels such as "Tweet:" or "Response:". '''
         
         response = chat(
             model = 'llama3.2', 
@@ -84,7 +95,6 @@ def NewFeed(agents, inputposts):
             'Previous_response': inputposts[a]
         }
 
-    print(Outfeed)
 
 
     return Outfeed
@@ -98,16 +108,31 @@ def CommentCreation(agents, posts):
     for a, f in posts.items():
 
 
-        inputdata = f'''You are: {a} 
 
-            You previously wrote: {f['Previous_response']}
-        
-            You read the following tweets: {f['Feed']}. 
-            
-            Your position on the topic is {agents[a]['Positioning']}
+        inputdata = f"""
+        You are a user participating in a social media discussion
+        about nuclear energy.
 
-            Generate a short response to the tweet in line with your position on the topic
-    '''
+        Your position on nuclear energy is: {agents[a]['Positioning']}.
+
+        Your previous post:
+        {f['Previous_response']}
+
+        Posts from accounts you follow:
+        {f['Feed'] if f['Feed'] else 'No new posts available.'}
+
+        Write ONE new social media post about nuclear energy.
+
+        Rules:
+        - Express an opinion consistent with your assigned position.
+        - You may agree or disagree with the posts you read.
+        - Write no more than 40 words.
+        - Write only the post itself.
+        - Do not explain your instructions or describe what you are doing.
+        - Do not generate fictional conversations or quote imaginary replies.
+        - Do not include labels such as "Tweet:" or "Response:".
+        """
+
         
         response = chat(
             model = 'llama3.2', 
@@ -115,8 +140,6 @@ def CommentCreation(agents, posts):
         )
 
         responseComments[a] = response.message.content
-
-    print(responseComments)
 
     return responseComments         
 
