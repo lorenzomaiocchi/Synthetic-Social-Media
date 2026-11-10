@@ -19,7 +19,8 @@ from structure import (
     MeanUpdating,
     update_positioning,
     ideology_snap,
-    SavefileFunction
+    SavefileFunction,
+    ComputeInitAdjecency
 )
 
 
@@ -38,26 +39,33 @@ fake_tweets = [
 feed0 = starting_feed(agents, fake_tweets) #creates the randomized starting feed
 InResp = initial_response(agents, feed0)
 
-
 history = {}
-
 
 opinion_history = {
     agent: []
     for agent in agents
 }
 
+
+initial_opinon = opinion(InResp, opinion_history)
+
 ideology_history= {a:[data['Ideology']] for a, data in agents.items()}
 
 N = len(agents.keys())
 
-T = 2
+T = 3
+
+initial_adjecency = ComputeInitAdjecency(agents)
 
 diff_tensor = np.zeros((N, N, T))
 adj_tensor = np.zeros((N, N, T), dtype= int)
 
 
-for t in range(T):
+adj_tensor[: , : , 0] = initial_adjecency
+
+
+
+for t in range(1, T + 1):
 
     history[t]  = {}
 
@@ -92,8 +100,9 @@ for t in range(T):
 
 
     print(f'------ turn {t} ---------')
+    print(opinion_history)
 
-SavefileFunction(ideology_data, 'Ideology_history.json')
-SavefileFunction(history, 'Comments_history.json')
-SavefileFunction(opinion_history, 'Opinion_history.json')
-np.savez_compressed('Analysis/Data/network_history.npz', adj_tensor = adj_tensor, diff_tensor = diff_tensor)
+#SavefileFunction(ideology_data, 'Ideology_history.json')
+#SavefileFunction(history, 'Comments_history.json')
+#SavefileFunction(opinion_history, 'Opinion_history.json')
+#np.savez_compressed('Analysis/Data/network_history.npz', adj_tensor = adj_tensor, diff_tensor = diff_tensor)

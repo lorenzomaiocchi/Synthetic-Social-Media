@@ -135,9 +135,10 @@ def CommentCreation(agents, posts):
 
         
         response = chat(
-            model = 'llama3.2', 
-            messages= [{'role' : 'user', 'content': inputdata}]
-        )
+                   model = 'llama3.2', 
+                   messages= [{'role' : 'user', 'content': inputdata}],
+                   options={'temperature': 1}
+               )
 
         responseComments[a] = response.message.content
 
@@ -283,3 +284,25 @@ def SavefileFunction(data, filename, path= 'Analysis/Data'):
 
     with open(savefile, 'w', encoding='utf-8') as f:
         json.dump(data, f )
+
+
+
+def ComputeInitAdjecency(agents) -> np.array:
+
+    agent_names = list(agents.keys())
+
+    initial_adjacency = np.array([
+    [
+        int(other in agents[agent]['follow'])
+        for other in agent_names
+    ]
+    for agent in agent_names
+    ], dtype=int)
+    print(initial_adjacency)
+
+
+
+
+
+
+ComputeInitAdjecency(create_agents(4))
