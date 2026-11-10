@@ -52,6 +52,7 @@ def initial_response(agents, starting_feed):
         responseData[a] = response.message.content
 
 
+
     return responseData        
 
 
@@ -74,9 +75,17 @@ def NewFeed(agents, inputposts):
     Outfeed = {}
 
     for a in agents.keys():
+
         feed = '\n'.join([f'{p} wrote: {inputposts[p]}' for p in agents[a]['follow']])
 
-        Outfeed[a] = feed
+
+        Outfeed[a] = {
+            'Feed': feed, 
+            'Previous_response': inputposts[a]
+        }
+
+    print(Outfeed)
+
 
     return Outfeed
 
@@ -90,8 +99,10 @@ def CommentCreation(agents, posts):
 
 
         inputdata = f'''You are: {a} 
-            
-            You read the following tweets: {f}. 
+
+            You previously wrote: {f['Previous_response']}
+        
+            You read the following tweets: {f['Feed']}. 
             
             Your position on the topic is {agents[a]['Positioning']}
 
@@ -104,6 +115,8 @@ def CommentCreation(agents, posts):
         )
 
         responseComments[a] = response.message.content
+
+    print(responseComments)
 
     return responseComments         
 
@@ -247,6 +260,3 @@ def SavefileFunction(data, filename, path= 'Analysis/Data'):
 
     with open(savefile, 'w', encoding='utf-8') as f:
         json.dump(data, f )
-
-
-    

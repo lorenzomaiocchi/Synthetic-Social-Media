@@ -35,7 +35,7 @@ def create_agents(n_agents):
             'Opennes': np.random.rand(1,1).round(2).flatten(),
             'Ideology':  mapping_key,
             'Positioning': mapping_dict[mapping_key],
-            'follow': np.random.choice([a for a in agents if a != agent], 3, replace= False).tolist(),
+            'follow': np.random.choice([a for a in agents if a != agent], 2 ,replace= False).tolist(),
             'Alpha': 0.10
         }
     
@@ -52,6 +52,3 @@ def randomizeFeed(inputPosts):
 
 
 
-agents = create_agents(5)
-
-print(len(agents.keys()))
