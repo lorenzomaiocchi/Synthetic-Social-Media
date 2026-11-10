@@ -38,8 +38,6 @@ def create_agents(n_agents):
             'follow': np.random.choice([a for a in agents if a != agent], 3, replace= False).tolist(),
             'Alpha': 0.10
         }
-
-    print(personality_dict, sep='\n')
     
     return personality_dict
 
@@ -54,5 +52,6 @@ def randomizeFeed(inputPosts):
 
 
 
-agents = create_agents(4)
+agents = create_agents(5)
 
+print(len(agents.keys()))

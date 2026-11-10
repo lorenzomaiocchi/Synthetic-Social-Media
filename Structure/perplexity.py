@@ -33,7 +33,7 @@ def compute_perplexity(text, opinion):
     total_log_prob = 0
     token_count = 0
 
-    for i in range(len(textTokens)+1, len(wholeTokens)+1):
+    for i in range(len(textTokens), len(wholeTokens)):
 
         prompt = ' '.join(wholeTokens[:i])
 

@@ -5,11 +5,11 @@ import random
 from agentprofile import create_agents
 from ollama import chat
 from perplexity import compute_opinion
-
+import pathlib
 ## T = 0 / starting  point, random feed
 
 
-agents = create_agents(4)
+
 
 def starting_feed(agents, tweetlist):
 
@@ -23,18 +23,6 @@ def starting_feed(agents, tweetlist):
 
         startingFeeddict[i] = random.sample(tweetlist, 2)
     return startingFeeddict
-
-
-
-fake_tweets = [
-    "Nuclear energy is really dangerous and evil.",
-    "They want to talk about nuclear energy but never bring up the solution to nuclear waste #wwastedmoney",
-    "Nuclear energy is the only solution possible to climate change",
-    "If we had nuclear energy everyone would be better off #changemymind"
-]
-
-
-feed0 = starting_feed(agents, fake_tweets) #creates the randomized starting feed
 
 
 
@@ -238,45 +226,27 @@ def update_positioning(agents):
 
 
 
+def ideology_snap(agents, ideology_dictionary):
+
+    for a, data in agents.items():
+
+        ideology_dictionary[a].append(data['Ideology'])
+
+    return ideology_dictionary
 
 
 
-#MAIN LOOP #######
-###################
 
-InResp = initial_response(agents, feed0)
+def SavefileFunction(data, filename, path= 'Analysis/Data'):
 
+    file_path = pathlib.Path(path)
 
-history = {}
+    file_path.mkdir(parents= True, exist_ok=True)
 
+    savefile = file_path / filename
 
-opinion_history = {
-    agent: []
-    for agent in agents
-}
+    with open(savefile, 'w', encoding='utf-8') as f:
+        json.dump(data, f )
 
 
-for t in range(4):
-
-    history[t]  = {}
-
-    if t == 0:
-        source = InResp
-    else:
-        source = history[t - 1]
     
-    feed = NewFeed(agents, source)
-    history[t] = CommentCreation(agents, feed)
-    Opinion = opinion(history[t], opinion_history=opinion_history)
-    Difference_matrix = opinion_matrix(Opinion, t)
-    AdjMatrix = Adjacency_Matrix(Difference_matrix)
-    agents = update_followers(agents, AdjMatrix)
-    NewIdeology = FollowIdeology(agents)
-    agents = MeanUpdating(agents)
-    agents = update_positioning(agents)
-
-
-
-    print(f'------ turn {t} ---------')
-    #print(history[t])
-    print(agents)
