@@ -1,5 +1,4 @@
 import numpy as np
-from ollama import chat
 
 
 def pplPromptin(inputMessage):
