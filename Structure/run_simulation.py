@@ -76,7 +76,7 @@ def parse_args():
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="Analysis/Data/Test",
+        default="Analysis/Data",
         help="Directory for simulation results.",
     )
 
@@ -285,12 +285,6 @@ def run_simulation(n_agents, steps, seed, output_dir):
 
         print("\nIdeologies:")
         print(current_ideologies)
-
-        print(f"\nDirected connections: {n_connections}")
-        print(
-            f"Network density: "
-            f"{n_connections / (N * (N - 1)):.3f}"
-        )
 
     # --------------------------------------------------------
     # 6. Save results
