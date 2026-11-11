@@ -74,12 +74,17 @@ def initial_response(agents,starting_feed, tokenizer, model):
             pad_token_id=tokenizer.eos_token_id
     )
 
-        print(outputs)
+    
+        generated_tokens = outputs[0, data["input_ids"].shape[-1]:]
 
+        responseData[a] = tokenizer.decode(
+            generated_tokens,
+            skip_special_tokens=True
+        )
 
-
-
-    #return responseData        
+    print(responseData)
+    
+    #return responseData   
 
 
 
