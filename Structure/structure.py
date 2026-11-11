@@ -3,7 +3,6 @@ import json
 import pandas as pd
 import random 
 from agentprofile import create_agents
-from ollama import chat
 from perplexity import compute_opinion
 import pathlib
 ## T = 0 / starting  point, random feed
@@ -298,11 +297,6 @@ def ComputeInitAdjecency(agents) -> np.array:
     ]
     for agent in agent_names
     ], dtype=int)
-    print(initial_adjacency)
 
+    return initial_adjacency
 
-
-
-
-
-ComputeInitAdjecency(create_agents(4))
