@@ -37,7 +37,7 @@ N_AGENTS = 4
 T = 3
 SEED = 42
 
-OUTPUT_DIR = "Analysis/Data"
+OUTPUT_DIR = "Analysis/Data/Test"
 
 FAKE_TWEETS = [
     "Nuclear energy is really dangerous and evil.",
