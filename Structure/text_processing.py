@@ -26,7 +26,7 @@ def InferenceModel(altmodel=None, dtype="auto"):
     return model
 
 
-def initial_response(agents,starting_feed):
+def initial_response(agents,starting_feed, tokenizer, model):
 
     responseData = {}
 
@@ -62,7 +62,7 @@ def initial_response(agents,starting_feed):
             add_generation_prompt = True,
             tokenize = True,
             return_dict = True,
-            return_tensor = 'pt').to(model.device)
+            return_tensors = 'pt').to(model.device)
 
         with torch.inference_mode():
             outputs = model.generate(
@@ -74,12 +74,12 @@ def initial_response(agents,starting_feed):
             pad_token_id=tokenizer.eos_token_id
     )
 
-    print(outputs)
+        print(outputs)
 
 
 
 
-    return responseData        
+    #return responseData        
 
 
 
