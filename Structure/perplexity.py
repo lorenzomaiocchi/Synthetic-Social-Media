@@ -1,68 +1,71 @@
-import numpy as np
-from ollama import chat
+import torch
+
+'''Implementing ADA conditional loss and perplexity scoring algorithm from:
 
 
-def pplPromptin(inputMessage):
+    https://github.com/debatelab/ada-simulation
 
-    response = chat(
-        model='llama3.2',
-        messages=[
-            {'role': 'user', 'content': inputMessage}
-        ],
-        logprobs=True,
-        top_logprobs=0,
-        options={
-            'num_predict': 1,
-            'temperature': 1
-        },
-        stream=False
+
+'''
+
+def conditional_loss(labels, logits, k_last_tokens):
+
+    shift_logits = logits[..., :-1, :].float().contiguous()
+    shift_labels = labels[..., 1:].contiguous()
+
+    shift_logits = shift_logits[..., -k_last_tokens:, :].contiguous()
+    shift_labels = shift_labels[..., -k_last_tokens:].contiguous()
+
+    loss_fct = torch.nn.CrossEntropyLoss()
+
+    last_k_loss = loss_fct(
+        shift_logits.view(-1, shift_logits.size(-1)),
+        shift_labels.view(-1)
     )
 
-    return response
-    
+    return last_k_loss
 
 
-def compute_perplexity(text, opinion):
+def compute_perplexity(context, target, tokenizer, model):
 
-    '''Compute perplexity score, re-use the same logic of the original paper'''
+    context_ids = tokenizer(
+        context, add_special_tokens=False
+    )["input_ids"]
 
-    wholeText = text+opinion
-    textTokens = text.split()
-    wholeTokens = wholeText.split()
+    target_ids = tokenizer(
+        target, add_special_tokens=False
+    )["input_ids"]
 
-    total_log_prob = 0
-    token_count = 0
+    full_ids = context_ids + target_ids
 
-    for i in range(len(textTokens), len(wholeTokens)):
+    input_tensor = torch.tensor(
+        [full_ids],
+        device=model.device
+    )
 
-        prompt = ' '.join(wholeTokens[:i])
+    with torch.inference_mode():
+        outputs = model(input_ids=input_tensor)
 
-        response = pplPromptin(prompt)
+        loss = conditional_loss(
+            input_tensor,
+            outputs.logits,
+            len(target_ids)
+        )
 
-        logprob = response.logprobs[0].logprob
-        
-        total_log_prob +=logprob 
-        token_count += 1
-
-    avg_neg_log_likelihood = -total_log_prob / token_count
-    perplexity =  np.exp(avg_neg_log_likelihood)
-
-    return perplexity
+    return torch.exp(loss).item()
 
 
-def compute_opinion(text):
+def compute_opinion(text, tokenizer, model):
 
-    bridge = "Considering the previous statements, "
+    bridge = "\n\nThe author's position on nuclear energy is: "
 
-    pro = "I\'d add the following thought: I think that Nuclear Energy is really beneficial for society"
-    con = "I\'d add the following thought: I think that Nuclear Energy is really dangerous for society"
+    pro = "supportive."
+    con = "opposed."
 
-    proPerplexity = compute_perplexity(text + bridge, pro)
-    conPerplexity = compute_perplexity(text + bridge, con)
+    proPerplexity = compute_perplexity(text + bridge, pro, tokenizer, model)
+    conPerplexity = compute_perplexity(text + bridge, con, tokenizer, model)
 
     opinion = conPerplexity / (proPerplexity + conPerplexity)
 
     return opinion 
 
-
-## Change the prompting

@@ -1,6 +1,6 @@
-from text_processing import load_tokenizer, InferenceModel, initial_response
+from text_processing import load_tokenizer, InferenceModel, initial_response, CommentCreation
 from agentprofile import create_agents
-from structure import starting_feed
+from structure import starting_feed, NewFeed
 
 
 agents = create_agents(4)
@@ -15,6 +15,16 @@ tokenizer = load_tokenizer()
 model = InferenceModel()
 
 
-
+print(agents)
 feed0 = starting_feed(agents, fake_tweets) #creates the randomized starting feed
-InResp = initial_response(agents, feed0)
+InResp = initial_response(agents, feed0, tokenizer, model)
+feed1 = NewFeed(agents, InResp)
+comms = CommentCreation(agents, feed1, tokenizer, model)
+
+
+print('*'*50)
+print(agents)
+print('*'*50)
+print(InResp)
+print('*'*50)
+print(comms)

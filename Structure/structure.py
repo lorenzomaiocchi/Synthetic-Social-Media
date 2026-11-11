@@ -26,49 +26,6 @@ def starting_feed(agents, tweetlist):
 
 
 
-def initial_response(agents, starting_feed):
-
-    responseData = {}
-
-
-    for a, f in starting_feed.items():
-
-
-        inputdata = f'''
-        You are a user participating in a social media discussion about nuclear energy.
-            
-        Your position on the topic is {agents[a]['Positioning']}
-            
-        You read the following tweets: 
-            {f}. 
-            
-
-        Write ONE new social media post about nuclear energy.
-            
-                    Rules:
-                    - Express an opinion consistent with your assigned position.
-                    - You may agree or disagree with the posts you read.
-                    - Write no more than 40 words.
-                    - Write only the post itself.
-                    - Do not explain your instructions or describe what you are doing.
-                    - Do not generate fictional conversations or quote imaginary replies.
-                    - Do not include labels such as "Tweet:" or "Response:". '''
-        
-        response = chat(
-            model = 'llama3.2', 
-            messages= [{'role' : 'user', 'content': inputdata}],
-            options={'temperature': 1}
-        )
-
-        responseData[a] = response.message.content
-
-
-
-    return responseData        
-
-
-
-
 #def randomizeFeed(inputPosts):
 #    
 #    posts = {}
@@ -100,56 +57,12 @@ def NewFeed(agents, inputposts):
     return Outfeed
 
 
-def CommentCreation(agents, posts):
 
-    responseComments = {}
-
-
-    for a, f in posts.items():
-
-
-
-        inputdata = f"""
-        You are a user participating in a social media discussion
-        about nuclear energy.
-
-        Your position on nuclear energy is: {agents[a]['Positioning']}.
-
-        Your previous post:
-        {f['Previous_response']}
-
-        Posts from accounts you follow:
-        {f['Feed'] if f['Feed'] else 'No new posts available.'}
-
-        Write ONE new social media post about nuclear energy.
-
-        Rules:
-        - Express an opinion consistent with your assigned position.
-        - You may agree or disagree with the posts you read.
-        - Write no more than 40 words.
-        - Write only the post itself.
-        - Do not explain your instructions or describe what you are doing.
-        - Do not generate fictional conversations or quote imaginary replies.
-        - Do not include labels such as "Tweet:" or "Response:".
-        """
-
-        
-        response = chat(
-                   model = 'llama3.2', 
-                   messages= [{'role' : 'user', 'content': inputdata}],
-                   options={'temperature': 1}
-               )
-
-        responseComments[a] = response.message.content
-
-    return responseComments         
-
-
-def opinion(turn, opinion_history):
+def opinion(turn, opinion_history, tokenizer, model):
 
     for agent, tweet in turn.items():
 
-        opinion = compute_opinion(tweet)
+        opinion = compute_opinion(tweet, tokenizer, model)
 
         opinion_history[agent].append(opinion)
 
