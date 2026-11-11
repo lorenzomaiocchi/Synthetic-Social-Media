@@ -1,4 +1,5 @@
 
+import argparse
 import random
 from pathlib import Path
 
@@ -30,14 +31,8 @@ from structure import (
 
 
 # ============================================================
-# CONFIGURATION
+# DEFAULT CONFIGURATION
 # ============================================================
-
-N_AGENTS = 4
-T = 3
-SEED = 42
-
-OUTPUT_DIR = "Analysis/Data/Test"
 
 FAKE_TWEETS = [
     "Nuclear energy is really dangerous and evil.",
@@ -48,43 +43,108 @@ FAKE_TWEETS = [
 
 
 # ============================================================
+# COMMAND-LINE ARGUMENTS
+# ============================================================
+
+def parse_args():
+
+    parser = argparse.ArgumentParser(
+        description="Run the Qwen-based synthetic social media simulation."
+    )
+
+    parser.add_argument(
+        "--agents",
+        type=int,
+        default=4,
+        help="Number of agents (default: 4).",
+    )
+
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=3,
+        help="Number of simulation steps (default: 3).",
+    )
+
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed (default: 42).",
+    )
+
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="Analysis/Data/Test",
+        help="Directory for simulation results.",
+    )
+
+    args = parser.parse_args()
+
+    if args.agents < 3:
+        parser.error("--agents must be at least 3.")
+
+    if args.steps < 1:
+        parser.error("--steps must be at least 1.")
+
+    return args
+
+
+# ============================================================
+# REPRODUCIBILITY
+# ============================================================
+
+def set_seed(seed):
+
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+# ============================================================
 # SIMULATION
 # ============================================================
 
-def run_simulation():
+def run_simulation(n_agents, steps, seed, output_dir):
+
+    set_seed(seed)
+
+    print("=" * 50)
+    print("SYNTHETIC SOCIAL MEDIA SIMULATION")
+    print("=" * 50)
+    print(f"Agents:     {n_agents}")
+    print(f"Steps:      {steps}")
+    print(f"Seed:       {seed}")
+    print(f"Output:     {output_dir}")
+    print("=" * 50)
 
     # --------------------------------------------------------
-    # 1. Reproducibility
+    # 1. Load model and tokenizer
     # --------------------------------------------------------
 
-    random.seed(SEED)
-    np.random.seed(SEED)
-    torch.manual_seed(SEED)
-
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(SEED)
-
-    # --------------------------------------------------------
-    # 2. Load model and tokenizer once
-    # --------------------------------------------------------
-
-    print("Loading Qwen model and tokenizer...")
+    print("\nLoading Qwen model and tokenizer...")
 
     tokenizer = load_tokenizer()
     model = InferenceModel()
 
     # --------------------------------------------------------
-    # 3. Create agents
+    # 2. Create agents
     # --------------------------------------------------------
 
-    agents = create_agents(N_AGENTS)
+    agents = create_agents(n_agents)
 
     agent_names = list(agents.keys())
     N = len(agent_names)
 
     # --------------------------------------------------------
-    # 4. Initialize simulation
+    # 3. Generate initial posts
     # --------------------------------------------------------
+
+    print("\nGenerating initial posts...")
 
     feed0 = starting_feed(agents, FAKE_TWEETS)
 
@@ -107,7 +167,7 @@ def run_simulation():
         for agent, data in agents.items()
     }
 
-    # Measure opinions at t = 0
+    # Score initial posts
     opinion(
         initial_posts,
         opinion_history,
@@ -116,41 +176,40 @@ def run_simulation():
     )
 
     # --------------------------------------------------------
-    # 5. Initialize network history
+    # 4. Initialize network history
     # --------------------------------------------------------
 
     diff_tensor = np.zeros(
-        (N, N, T + 1),
+        (N, N, steps + 1),
         dtype=float,
     )
 
     adj_tensor = np.zeros(
-        (N, N, T + 1),
+        (N, N, steps + 1),
         dtype=int,
     )
 
     adj_tensor[:, :, 0] = ComputeInitAdjecency(agents)
 
-    # Initial opinion differences
     diff_tensor[:, :, 0] = opinion_matrix(
         opinion_history,
         0,
     )
 
     # --------------------------------------------------------
-    # 6. Main simulation loop
+    # 5. Main simulation loop
     # --------------------------------------------------------
 
-    for t in range(1, T + 1):
+    for t in range(1, steps + 1):
 
         print(f"\n{'=' * 50}")
-        print(f"TIME STEP {t}/{T}")
-        print(f"{'=' * 50}")
+        print(f"TIME STEP {t}/{steps}")
+        print(f"{'=' * 50}", flush=True)
 
-        # Previous time step's posts
+        # Read previous posts
         previous_posts = history[t - 1]
 
-        # Construct social feeds
+        # Build feeds from followed accounts
         feed = NewFeed(agents, previous_posts)
 
         # Generate new posts
@@ -171,13 +230,13 @@ def run_simulation():
             model,
         )
 
-        # Calculate opinion distances
+        # Calculate pairwise opinion differences
         difference_matrix = opinion_matrix(
             opinion_history,
             t,
         )
 
-        # Update network
+        # Rewire social network
         adjacency_matrix = Adjacency_Matrix(
             difference_matrix
         )
@@ -191,17 +250,18 @@ def run_simulation():
         agents = MeanUpdating(agents)
         agents = update_positioning(agents)
 
-        # Record history
+        # Record updated ideologies
         ideology_snap(
             agents,
             ideology_history,
         )
 
+        # Record network state
         adj_tensor[:, :, t] = adjacency_matrix
         diff_tensor[:, :, t] = difference_matrix
 
         # ----------------------------------------------------
-        # Debug output
+        # Progress summary
         # ----------------------------------------------------
 
         current_opinions = {
@@ -214,6 +274,8 @@ def run_simulation():
             for agent, data in agents.items()
         }
 
+        n_connections = int(adjacency_matrix.sum())
+
         print("\nPosts:")
         for agent, post in current_posts.items():
             print(f"{agent}: {post}")
@@ -221,14 +283,17 @@ def run_simulation():
         print("\nOpinions:")
         print(current_opinions)
 
-        print("\nAdjacency matrix:")
-        print(adjacency_matrix)
-
         print("\nIdeologies:")
         print(current_ideologies)
 
+        print(f"\nDirected connections: {n_connections}")
+        print(
+            f"Network density: "
+            f"{n_connections / (N * (N - 1)):.3f}"
+        )
+
     # --------------------------------------------------------
-    # 7. Save results
+    # 6. Save results
     # --------------------------------------------------------
 
     print("\nSaving simulation results...")
@@ -236,28 +301,40 @@ def run_simulation():
     SavefileFunction(
         ideology_history,
         "Ideology_history.json",
-        path=OUTPUT_DIR,
+        path=output_dir,
     )
 
     SavefileFunction(
         history,
         "Comments_history.json",
-        path=OUTPUT_DIR,
+        path=output_dir,
     )
 
     SavefileFunction(
         opinion_history,
         "Opinion_history.json",
-        path=OUTPUT_DIR,
+        path=output_dir,
     )
 
-    output_path = Path(OUTPUT_DIR)
+    output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     np.savez_compressed(
         output_path / "network_history.npz",
         adj_tensor=adj_tensor,
         diff_tensor=diff_tensor,
+    )
+
+    # Save experiment configuration
+    SavefileFunction(
+        {
+            "n_agents": n_agents,
+            "steps": steps,
+            "seed": seed,
+            "model": "Qwen/Qwen2.5-3B-Instruct",
+        },
+        "config.json",
+        path=output_dir,
     )
 
     print("\nSimulation completed successfully!")
@@ -277,4 +354,12 @@ def run_simulation():
 # ============================================================
 
 if __name__ == "__main__":
-    results = run_simulation()
+
+    args = parse_args()
+
+    results = run_simulation(
+        n_agents=args.agents,
+        steps=args.steps,
+        seed=args.seed,
+        output_dir=args.output_dir,
+    )
