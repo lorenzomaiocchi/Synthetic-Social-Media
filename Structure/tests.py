@@ -17,4 +17,4 @@ model = InferenceModel()
 
 
 feed0 = starting_feed(agents, fake_tweets) #creates the randomized starting feed
-InResp = initial_response(agents, feed0)
+InResp = initial_response(agents, feed0, tokenizer, model)

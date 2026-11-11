@@ -83,3 +83,11 @@ def initial_response(agents,starting_feed, tokenizer, model):
 
 
 
+tokenizer = load_tokenizer()
+model = InferenceModel()
+
+
+
+
+
+
