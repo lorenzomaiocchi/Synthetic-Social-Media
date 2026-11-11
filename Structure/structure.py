@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import random 
 from agentprofile import create_agents
+from ollama import chat
 from perplexity import compute_opinion
 import pathlib
 ## T = 0 / starting  point, random feed
