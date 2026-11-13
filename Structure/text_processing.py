@@ -8,16 +8,18 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-def load_tokenizer(altmodel=None):
-    return AutoTokenizer.from_pretrained(altmodel or "Qwen/Qwen2.5-3B-Instruct")
+DEFAULT_MODEL = "Qwen/Qwen2.5-3B-Instruct"
+
+def load_tokenizer(model_name = DEFAULT_MODEL):
+    return AutoTokenizer.from_pretrained(model_name)
 
 
-def InferenceModel(altmodel=None, dtype="auto"):
+def InferenceModel(model_name = DEFAULT_MODEL, dtype="auto"):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
 
     model = AutoModelForCausalLM.from_pretrained(
-        altmodel or "Qwen/Qwen2.5-3B-Instruct",
+        model_name,
         dtype=dtype,
         device_map="auto"
     )

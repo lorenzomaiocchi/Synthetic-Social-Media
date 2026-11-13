@@ -80,6 +80,13 @@ def parse_args():
         help="Directory for simulation results.",
     )
 
+    parser.add_argument(
+        '--model',
+        type = str,
+        default="Qwen/Qwen2.5-3B-Instruct",
+        help= 'Hugging-face model identifier'
+    )
+
     args = parser.parse_args()
 
     if args.agents < 3:
@@ -109,7 +116,7 @@ def set_seed(seed):
 # SIMULATION
 # ============================================================
 
-def run_simulation(n_agents, steps, seed, output_dir):
+def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3B-Instruct"):
 
     set_seed(seed)
 
@@ -126,7 +133,7 @@ def run_simulation(n_agents, steps, seed, output_dir):
     # 1. Load model and tokenizer
     # --------------------------------------------------------
 
-    print("\nLoading Qwen model and tokenizer...")
+    print(f"\nLoading model and tokenizer: {model_name}")
 
     tokenizer = load_tokenizer()
     model = InferenceModel()
@@ -351,9 +358,10 @@ if __name__ == "__main__":
 
     args = parse_args()
 
-    results = run_simulation(
-        n_agents=args.agents,
-        steps=args.steps,
-        seed=args.seed,
-        output_dir=args.output_dir,
-    )
+results = run_simulation(
+    n_agents=args.agents,
+    steps=args.steps,
+    seed=args.seed,
+    output_dir=args.output_dir,
+    model_name=args.model,
+)
