@@ -1,6 +1,8 @@
-from text_processing import load_tokenizer, InferenceModel
-from perplexity import compute_opinion
+from Structure.text_processing import load_tokenizer, InferenceModel
+from Structure.perplexity import compute_opinion
 
+
+'''Initial test for the validation of the opinion metric'''
 
 tokenizer = load_tokenizer('meta-llama/Llama-3.2-3B-Instruct')
 model = InferenceModel('meta-llama/Llama-3.2-3B-Instruct')
