@@ -11,7 +11,7 @@ DATA_DIR = PROJECT_ROOT / "Test" / "Data"
 
 '''Validate the posts using the data from the SPINOS dataset with official labels'''
 
-spinos_official = pd.read_pickle('Test/Data/SPINOSDATA/Spinos_official_dataset_v1.1.pkl')
+spinos_official = pd.read_pickle('Test/Data/SPINOSDATA/SPINOS_official_dataset_v1.1.pkl')
 
 #Take only content, annotation and topic=='Nuclear'
 
