@@ -57,15 +57,20 @@ def compute_perplexity(context, target, tokenizer, model):
 
 def compute_opinion(text, tokenizer, model):
 
-    bridge = "\n\nThe author's position on nuclear energy is: "
+    context = (
+        "Let's discuss nuclear energy!\n"
+        f"{text}\n"
+        "I more or less agree with the arguments presented above. "
+        "And therefore, all in all,"
+    )
 
-    pro = "supportive."
-    con = "opposed."
+    pro = " nuclear energy should be expanded."
+    con = " nuclear energy should be phased out."
 
-    proPerplexity = compute_perplexity(text + bridge, pro, tokenizer, model)
-    conPerplexity = compute_perplexity(text + bridge, con, tokenizer, model)
+    pro_ppl = compute_perplexity(context, pro, tokenizer, model)
+    con_ppl = compute_perplexity(context, con, tokenizer, model)
 
-    opinion = conPerplexity / (proPerplexity + conPerplexity)
+    opinion = con_ppl / (pro_ppl + con_ppl)
 
-    return opinion 
+    return opinion
 
