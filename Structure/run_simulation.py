@@ -34,10 +34,11 @@ from structure import (
 # DEFAULT CONFIGURATION
 # ============================================================
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+DATA_PATH = PROJECT_ROOT / "Test" / "Data" / "SPINOSDATA" / "textdata.csv"
 
-
-tweets = pd.read_csv(r'Test\\Data\\SPINOSDATA\\textdata.csv').content.to_list()
+tweets = pd.read_csv(DATA_PATH)["content"].to_list()
 
 
 # ============================================================
