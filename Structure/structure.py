@@ -137,7 +137,7 @@ def MeanUpdating(agents):
 
     for a in agents.keys():
 
-        u = float(agents[a]['Mu'][0])
+        u = float(agents[a]['Mu'])
         Id_agent = agents[a]['Ideology']
         
         fl_mean = idarray[a]
