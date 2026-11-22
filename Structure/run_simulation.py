@@ -58,6 +58,20 @@ def parse_args():
     )
 
     parser.add_argument(
+        '--alpha-mode',
+        choices=['fixed', 'random'],
+        default='fixed',
+        help = "Susceptibility mode (default: fixed)"
+    )
+
+    parser.add_argument(
+    "--alpha",
+    type=float,
+    default=0.10,
+    help="Susceptibility value in fixed mode (default: 0.10)"
+    )
+    
+    parser.add_argument(
         "--steps",
         type=int,
         default=3,

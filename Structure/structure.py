@@ -81,9 +81,12 @@ def opinion_matrix(opinions, t):
     )
 
 
-def Adjacency_Matrix(differenceMatrix):
+def Adjacency_Matrix(differenceMatrix, agents, fixed_alpha = True):
 
-    connections = np.where(differenceMatrix < 0.1, 1 , 0 )
+    alpha =  np.array([agent['Alpha'] for agent in agents.values()])[:, None]
+
+
+    connections = np.where(differenceMatrix < alpha, 1 , 0 )
 
     np.fill_diagonal(connections, 0)
 

@@ -20,13 +20,14 @@ mapping_dict = {
     10:'Strong support'
 }
 
-def create_agents(n_agents):
+def create_agents(n_agents, alpha_mode = 'fixed', fixed_alpha = 0.10):
 
     agents = [ f'Agent {i + 1}' for i in range(n_agents)]
-    
-    
 
     personality_dict = {}
+    
+    alpha = fixed_alpha if alpha_mode=='fixed' else float(np.random.uniform(0,1))
+
 
     for agent in agents:
         mapping_key = int(np.random.choice(list(mapping_dict.keys())))
@@ -36,7 +37,7 @@ def create_agents(n_agents):
             'Ideology':  mapping_key,
             'Positioning': mapping_dict[mapping_key],
             'follow': np.random.choice([a for a in agents if a != agent], 2 ,replace= False).tolist(),
-            'Alpha': 0.10
+            'Alpha': alpha
         }
     
     return personality_dict
