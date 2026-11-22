@@ -20,7 +20,7 @@ mapping_dict = {
     10:'Strong support'
 }
 
-def create_agents(n_agents, alpha_mode = 'fixed', fixed_alpha = 0.10):
+def create_agents(n_agents, alpha_mode = 'fixed', fixed_alpha = 0.10, mu_mode = 'random', fixed_mu = 0.5):
 
     agents = [ f'Agent {i + 1}' for i in range(n_agents)]
 
@@ -33,9 +33,11 @@ def create_agents(n_agents, alpha_mode = 'fixed', fixed_alpha = 0.10):
 
         alpha = fixed_alpha if alpha_mode=='fixed' else float(np.random.uniform(0,1))
         mapping_key = int(np.random.choice(list(mapping_dict.keys())))
+
+        mu = fixed_mu if mu_mode == 'fixed' else float(np.random.uniform(0, 1))
         
         personality_dict[agent] = {
-            'Opennes': np.random.rand(1,1).round(2).flatten(),
+            'Mu': mu,
             'Ideology':  mapping_key,
             'Positioning': mapping_dict[mapping_key],
             'follow': np.random.choice([a for a in agents if a != agent], 2 ,replace= False).tolist(),

@@ -56,20 +56,6 @@ def parse_args():
         default=4,
         help="Number of agents (default: 4).",
     )
-
-    parser.add_argument(
-        '--alpha-mode',
-        choices=['fixed', 'random'],
-        default='fixed',
-        help = "Susceptibility mode (default: fixed)"
-    )
-
-    parser.add_argument(
-    "--alpha",
-    type=float,
-    default=0.10,
-    help="Susceptibility value in fixed mode (default: 0.10)"
-    )
     
     parser.add_argument(
         "--steps",
@@ -98,6 +84,34 @@ def parse_args():
         default="Qwen/Qwen2.5-3B-Instruct",
         help= 'Hugging-face model identifier'
     )
+    
+    parser.add_argument(
+        '--alpha-mode',
+        choices=['fixed', 'random'],
+        default='fixed',
+        help = "Susceptibility mode (default: fixed)"
+    )
+
+    parser.add_argument(
+    "--alpha",
+    type=float,
+    default=0.10,
+    help="Susceptibility value in fixed mode (default: 0.10)"
+    )
+
+    parser.add_argument(
+    "--mu-mode",
+    choices=["fixed", "random"],
+    default="random",
+    help="Ideological susceptibility mode (default: random)"
+    )
+
+    parser.add_argument(
+    "--mu",
+    type=float,
+    default=0.50,
+    help="Susceptibility value in fixed mode (default: 0.50)"
+    )
 
     args = parser.parse_args()
 
@@ -109,6 +123,9 @@ def parse_args():
 
     if not 0 <= args.alpha <= 1:
         parser.error('--alpha must be between 0 and 1.')
+    
+    if not 0 <= args.mu <= 1:
+        parser.error("--mu must be between 0 and 1.")
 
     return args
 
@@ -131,7 +148,7 @@ def set_seed(seed):
 # SIMULATION
 # ============================================================
 
-def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3B-Instruct", alpha_mode = 'fixed', fixed_alpha = 0.1):
+def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3B-Instruct", alpha_mode = 'fixed', fixed_alpha = 0.1, mu_mode="random", fixed_mu=0.50):
 
     set_seed(seed)
 
@@ -160,7 +177,9 @@ def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3
     agents = create_agents(
     n_agents,
     alpha_mode=alpha_mode,
-    fixed_alpha=fixed_alpha
+    fixed_alpha=fixed_alpha,
+    mu_mode=mu_mode,
+    fixed_mu=fixed_mu
     )
 
     agent_names = list(agents.keys())
@@ -352,10 +371,14 @@ def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3
             "n_agents": n_agents,
             "steps": steps,
             "seed": seed,
-            "model": model.model_name,
+            "model": model_name,
             "alpha_mode": alpha_mode,
             "fixed_alpha": fixed_alpha if alpha_mode =='fixed' else None,
-            "agent_alphas": {agent: float(data['Alpha']) for agent, data in agents.items()}
+            "agent_alphas": {agent: float(data['Alpha']) for agent, data in agents.items()},
+            "mu_mode": mu_mode,
+            "fixed_mu": fixed_mu if mu_mode == "fixed" else None,
+            "agent_mus": {agent: float(data["Mu"]) for agent, data in agents.items()
+}
             
             },
         "config.json",
@@ -392,5 +415,7 @@ if __name__ == "__main__":
         output_dir=args.output_dir,
         model_name=args.model,
         alpha_mode=args.alpha_mode,
-        fixed_alpha=args.alpha
+        fixed_alpha=args.alpha,
+        mu_mode=args.mu_mode,
+        fixed_mu=args.mu
     )
