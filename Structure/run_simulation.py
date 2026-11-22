@@ -2,7 +2,7 @@
 import argparse
 import random
 from pathlib import Path
-
+import pandas as pd
 import numpy as np
 import torch
 
@@ -34,12 +34,10 @@ from structure import (
 # DEFAULT CONFIGURATION
 # ============================================================
 
-FAKE_TWEETS = [
-    "Nuclear energy is really dangerous and evil.",
-    "They want to talk about nuclear energy but never bring up the solution to nuclear waste #wwastedmoney",
-    "Nuclear energy is the only solution possible to climate change",
-    "If we had nuclear energy everyone would be better off #changemymind",
-]
+
+
+
+tweets = pd.read_csv(r'Test\\Data\\SPINOSDATA\\textdata.csv').content.to_list()
 
 
 # ============================================================
@@ -153,7 +151,7 @@ def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3
 
     print("\nGenerating initial posts...")
 
-    feed0 = starting_feed(agents, FAKE_TWEETS)
+    feed0 = starting_feed(agents, tweets)
 
     initial_posts = initial_response(
         agents,
