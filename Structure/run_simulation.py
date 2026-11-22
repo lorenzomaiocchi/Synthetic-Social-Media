@@ -107,6 +107,9 @@ def parse_args():
     if args.steps < 1:
         parser.error("--steps must be at least 1.")
 
+    if not 0 <= args.alpha <= 1:
+        parser.error('--alpha must be between 0 and 1.')
+
     return args
 
 
@@ -128,7 +131,7 @@ def set_seed(seed):
 # SIMULATION
 # ============================================================
 
-def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3B-Instruct"):
+def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3B-Instruct", alpha_mode = 'fixed', fixed_alpha = 0.1):
 
     set_seed(seed)
 
@@ -154,7 +157,11 @@ def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3
     # 2. Create agents
     # --------------------------------------------------------
 
-    agents = create_agents(n_agents)
+    agents = create_agents(
+    n_agents,
+    alpha_mode=alpha_mode,
+    fixed_alpha=fixed_alpha
+    )
 
     agent_names = list(agents.keys())
     N = len(agent_names)
@@ -257,7 +264,8 @@ def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3
 
         # Rewire social network
         adjacency_matrix = Adjacency_Matrix(
-            difference_matrix
+            difference_matrix,
+            agents
         )
 
         agents = update_followers(
@@ -376,4 +384,6 @@ results = run_simulation(
     seed=args.seed,
     output_dir=args.output_dir,
     model_name=args.model,
+    alpha_mode=args.alpha_mode,
+    fixed_alpha=args.alpha
 )

@@ -81,7 +81,7 @@ def opinion_matrix(opinions, t):
     )
 
 
-def Adjacency_Matrix(differenceMatrix, agents, fixed_alpha = True):
+def Adjacency_Matrix(differenceMatrix, agents):
 
     alpha =  np.array([agent['Alpha'] for agent in agents.values()])[:, None]
 
