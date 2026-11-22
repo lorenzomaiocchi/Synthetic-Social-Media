@@ -352,12 +352,19 @@ def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3
             "n_agents": n_agents,
             "steps": steps,
             "seed": seed,
-            "model": "Qwen/Qwen2.5-3B-Instruct",
-        },
+            "model": model.model_name,
+            "alpha_mode": alpha_mode,
+            "fixed_alpha": fixed_alpha if alpha_mode =='fixed' else None,
+            "agent_alphas": {agent: float(data['Alpha']) for agent, data in agents.items()}
+            
+            },
         "config.json",
         path=output_dir,
+        
     )
 
+    
+    
     print("\nSimulation completed successfully!")
 
     return {
