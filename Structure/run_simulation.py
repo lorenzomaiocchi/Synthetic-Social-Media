@@ -150,8 +150,8 @@ def run_simulation(n_agents, steps, seed, output_dir, model_name="Qwen/Qwen2.5-3
 
     print(f"\nLoading model and tokenizer: {model_name}")
 
-    tokenizer = load_tokenizer()
-    model = InferenceModel()
+    tokenizer = load_tokenizer(model_name)
+    model = InferenceModel(model_name)
 
     # --------------------------------------------------------
     # 2. Create agents
@@ -385,12 +385,12 @@ if __name__ == "__main__":
 
     args = parse_args()
 
-results = run_simulation(
-    n_agents=args.agents,
-    steps=args.steps,
-    seed=args.seed,
-    output_dir=args.output_dir,
-    model_name=args.model,
-    alpha_mode=args.alpha_mode,
-    fixed_alpha=args.alpha
-)
+    results = run_simulation(
+        n_agents=args.agents,
+        steps=args.steps,
+        seed=args.seed,
+        output_dir=args.output_dir,
+        model_name=args.model,
+        alpha_mode=args.alpha_mode,
+        fixed_alpha=args.alpha
+    )

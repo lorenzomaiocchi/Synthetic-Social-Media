@@ -26,10 +26,12 @@ def create_agents(n_agents, alpha_mode = 'fixed', fixed_alpha = 0.10):
 
     personality_dict = {}
     
-    alpha = fixed_alpha if alpha_mode=='fixed' else float(np.random.uniform(0,1))
+    
 
 
     for agent in agents:
+
+        alpha = fixed_alpha if alpha_mode=='fixed' else float(np.random.uniform(0,1))
         mapping_key = int(np.random.choice(list(mapping_dict.keys())))
         
         personality_dict[agent] = {
